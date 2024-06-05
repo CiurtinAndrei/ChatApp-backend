@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const sendConfirmationEmail = require('../nodemailer/sender');
 const checkAuth = require('../middleware/checkAuth');
+const Conversation = require('../db_models/Conversation');
 
 router.post('/register', async (req, res) => {
   const { nume, prenume, username, email, password } = req.body;
@@ -263,5 +264,27 @@ router.post('/setpfp', checkAuth, async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 });
+
+router.get('/all-groups', checkAuth, async (req, res) => {
+  try {
+    const groups = await Conversation.find({
+      $or: [
+        { creator: req.user.id },
+        { members: req.user.id }
+      ]
+    }).select('_id groupName creator').populate({
+      path:'creator',
+      select:'username'
+    });
+
+    res.status(200).json({ groups });
+  } catch (error) {
+    console.error('Error retrieving groups:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+
+  //gets all groups where the user is either creator or member
+});
+
 
 module.exports = router;
