@@ -4,13 +4,13 @@ const Message = require('../db_models/Message');
 const checkAuth = require('../middleware/checkAuth');
 
 router.post('/new', checkAuth, async (req, res) => {
-    const { recipientId, content, mediaId } = req.body;
-    if (!recipientId) {
+    const { conversationId, content, mediaId } = req.body;
+    if (!conversationId) {
         return res.status(400).json({ error: "No recipient." });
     }
 
     try {
-        const newMessage = await Message.create({ senderId: req.user.id, recipientId, content, mediaId });
+        const newMessage = await Message.create({ senderId: req.user.id, conversationId, content, mediaId });
 
         res.status(201).json({ message: newMessage });
     } catch (error) {

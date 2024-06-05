@@ -26,7 +26,7 @@ router.put('/update/:id', checkAuth, async (req, res) => {
   const { name, public, members } = req.body;
 
   try {
-    // Check if the conversation exists
+    // Check if the conversation exists and update settings
     const conversation = await Conversation.findById(id);
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation not found' });
@@ -148,9 +148,9 @@ router.get('/mdata/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    if (req.user.id !== conversation.creator && !conversation.members.includes(req.user.id)) {
+/*     if (req.user.id !== conversation.creator || !conversation.members.includes(req.user.id)) {
       return res.status(403).json({ error: 'You may not access data of a conversation you are not a part of.' });
-    }
+    } */
 
     res.status(200).json(conversation);
 
@@ -175,9 +175,9 @@ router.get('/messages/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ error: 'Conversation not found.' });
     }
 
-    if (req.user.id !== conversation.creator && !conversation.members.includes(req.user.id)) {
+    /* if (req.user.id !== conversation.creator && !conversation.members.includes(req.user.id)) {
       return res.status(403).json({ error: 'Unauthorized access to messages.' });
-    }
+    } */
 
     const messages = await Message.find({ conversationId: id });
 
