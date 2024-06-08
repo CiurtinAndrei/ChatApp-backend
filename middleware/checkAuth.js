@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const modulePrefix = "[CheckAuthMiddleware]";
 
 const checkAuth = (req, res, next) => {
   const header = req.headers['authorization'];

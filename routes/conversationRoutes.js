@@ -114,7 +114,7 @@ router.delete('/delete/:id', checkAuth, async (req, res) => {
     } else {
       if (conversationToDelete.creator == req.user.id) {
         await Message.deleteMany({ conversationId: conversationToDelete._id });
-        conversationToDelete.deleteOne();
+        await conversationToDelete.deleteOne();
         res.status(200).json({ message: 'Conversation deleted successfully' });
       } else {
         res.status(403).json({ error: "You are not the owner of this group chat, so you can't delete it." })
@@ -179,7 +179,10 @@ router.get('/messages/:id', checkAuth, async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized access to messages.' });
     } */
 
-    const messages = await Message.find({ conversationId: id });
+    const messages = await Message.find({ conversationId: id }).populate({
+      path:'senderId', 
+      select: 'username _id'
+    });
 
     if (!messages || messages.length === 0) {
       return res.status(404).json({ error: 'Could not find messages.' });
