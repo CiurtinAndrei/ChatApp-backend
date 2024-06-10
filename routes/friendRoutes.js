@@ -51,21 +51,30 @@ router.get("/get", checkAuth, async (req, res) => {
                 { person2: req.user.id }
             ]
         })
-            .populate({
-                path: 'person1',
-                select: 'username'
-            })
-            .populate({
-                path: 'person2',
-                select: 'username'
-            })
-            .lean();
-        if (!friends) {
-            res.status(404).json({ error: "User does not have friends :( " });
-        } else {
-            const friendsData = friends.map(friend => friend.person2);
-            res.status(200).json(friendsData);
+        .populate({
+            path: 'person1',
+            select: 'username'
+        })
+        .populate({
+            path: 'person2',
+            select: 'username'
+        })
+        .lean();
+
+        if (!friends || friends.length === 0) {
+            return res.status(404).json({ error: "User does not have friends :( " });
         }
+
+        const friendsData = friends.map(friend => {
+            // Check if the logged-in user is person1 or person2 and return the other person
+            if (friend.person1._id.toString() === req.user.id) {
+                return { id: friend.person2._id, username: friend.person2.username };
+            } else {
+                return { id: friend.person1._id, username: friend.person1.username };
+            }
+        });
+
+        res.status(200).json(friendsData);
     }
     catch (error) {
         console.error('Error finding friends:', error);
