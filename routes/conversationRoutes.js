@@ -68,6 +68,11 @@ router.post('/join/:id', checkAuth, async (req, res) => {
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation not found' });
     }
+
+    if (conversation.creator.toString() === req.user.id || conversation.members.includes(req.user.id)) {
+      return res.status(400).json({ error: 'You are already part of the group' });
+    }
+
     if (!conversation.publicGroup) {
       return res.status(403).json({ error: 'You cannot join a private group' });
     }
@@ -84,23 +89,55 @@ router.post('/join/:id', checkAuth, async (req, res) => {
 });
 
 
-router.get('/all-public', async (req, res) => {
+
+// router.get('/all-public', async (req, res) => {
+//   try {
+//     const publicGroups = await Conversation.find({ publicGroup: true })
+//       .select('_id groupName publicGroup')
+//       .populate({
+//         path: 'creator',
+//         select: 'username'
+//       }).lean();
+
+//     res.status(201).json({ publicGroups });
+//   } catch (error) {
+//     console.error('Error creating conversation:', error);
+//     res.status(500).json({ error: 'An internal server error occurred' });
+//   }
+
+//   //get all public groups in the app - id, name
+// });
+
+router.get('/all-public', checkAuth, async (req, res) => {
   try {
     const publicGroups = await Conversation.find({ publicGroup: true })
-      .select('_id groupName publicGroup')
+      .select('_id groupName publicGroup members creator')
       .populate({
         path: 'creator',
         select: 'username'
-      }).lean();
+      })
+      .lean();
 
-    res.status(201).json({ publicGroups });
+    // Filter out groups where the current user is the creator or a member
+    const filteredGroups = publicGroups.filter(group => {
+      return group.creator._id.toString() !== req.user.id && !group.members.includes(req.user.id);
+    });
+
+    // Remove members and creator from the filtered groups for response
+    const responseGroups = filteredGroups.map(group => ({
+      _id: group._id,
+      groupName: group.groupName,
+      publicGroup: group.publicGroup,
+      creator: group.creator
+    }));
+
+    res.status(200).json({ publicGroups: responseGroups });
   } catch (error) {
-    console.error('Error creating conversation:', error);
+    console.error('Error fetching public groups:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
-
-  //get all public groups in the app - id, name
 });
+
 
 router.delete('/delete/:id', checkAuth, async (req, res) => {
   const { id } = req.params;
