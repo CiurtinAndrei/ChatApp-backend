@@ -88,26 +88,6 @@ router.post('/join/:id', checkAuth, async (req, res) => {
   }
 });
 
-
-
-// router.get('/all-public', async (req, res) => {
-//   try {
-//     const publicGroups = await Conversation.find({ publicGroup: true })
-//       .select('_id groupName publicGroup')
-//       .populate({
-//         path: 'creator',
-//         select: 'username'
-//       }).lean();
-
-//     res.status(201).json({ publicGroups });
-//   } catch (error) {
-//     console.error('Error creating conversation:', error);
-//     res.status(500).json({ error: 'An internal server error occurred' });
-//   }
-
-//   //get all public groups in the app - id, name
-// });
-
 router.get('/all-public', checkAuth, async (req, res) => {
   try {
     const publicGroups = await Conversation.find({ publicGroup: true })
@@ -120,7 +100,9 @@ router.get('/all-public', checkAuth, async (req, res) => {
 
     // Filter out groups where the current user is the creator or a member
     const filteredGroups = publicGroups.filter(group => {
-      return group.creator._id.toString() !== req.user.id && !group.members.includes(req.user.id);
+      const isCreator = group.creator._id.toString() === req.user.id;
+      const isMember = group.members.some(memberId => memberId.toString() === req.user.id);
+      return !isCreator && !isMember;
     });
 
     // Remove members and creator from the filtered groups for response
@@ -137,6 +119,7 @@ router.get('/all-public', checkAuth, async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 });
+
 
 
 router.delete('/delete/:id', checkAuth, async (req, res) => {
