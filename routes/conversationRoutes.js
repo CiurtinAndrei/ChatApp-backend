@@ -98,14 +98,12 @@ router.get('/all-public', checkAuth, async (req, res) => {
       })
       .lean();
 
-    // Filter out groups where the current user is the creator or a member
     const filteredGroups = publicGroups.filter(group => {
       const isCreator = group.creator._id.toString() === req.user.id;
       const isMember = group.members.some(memberId => memberId.toString() === req.user.id);
       return !isCreator && !isMember;
     });
 
-    // Remove members and creator from the filtered groups for response
     const responseGroups = filteredGroups.map(group => ({
       _id: group._id,
       groupName: group.groupName,
@@ -144,7 +142,6 @@ router.delete('/delete/:id', checkAuth, async (req, res) => {
     console.error('Error deleting Conversation:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
-  //delete a group by its id, only the owner can delete it, on deletion it also deletes all messages!
 });
 
 router.get('/mdata/:id', checkAuth, async (req, res) => {
@@ -178,7 +175,7 @@ router.get('/mdata/:id', checkAuth, async (req, res) => {
     console.error('Error fetching conversation:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
-  //gets the metadata of the group (name, creator, members, createdAt, type)
+  
 });
 
 
@@ -213,7 +210,6 @@ router.get('/messages/:id', checkAuth, async (req, res) => {
     console.error('Error fetching messages:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
-  // gets all messages for a group where the logged in user is either creator or member
 });
 
 router.post('/leave/:id', checkAuth, async (req, res) => {
@@ -245,7 +241,7 @@ router.post('/leave/:id', checkAuth, async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 
-  //leave a group based on its id
+  
 });
 
 

@@ -283,7 +283,6 @@ router.get('/all-groups', checkAuth, async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 
-  //gets all groups where the user is either creator or member
 });
 
 
