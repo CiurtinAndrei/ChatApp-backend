@@ -10,4 +10,5 @@ Here are the main features of **ChatApp**:
 
 ***
 
-This repository represents the **backend** part of **Chatapp** and was developed using **Express**. It is directly connected to MongoDB Cloud and implements the necessary APIs for data exchange with the frontend. There are five categories that the APIs can fall into: user, conversations, friend, image, 
+This repository represents the **backend** part of **Chatapp** and was developed using **Express**. It is directly connected to MongoDB Cloud and implements the necessary APIs for data exchange with the frontend. There are five categories that the APIs can fall into: user, conversation, friend, image and message. Everything from saving an user account up to rendering the messages of a group is achieved with the use of APIs.
+Special thanks to https://github.com/AlexMihai1126 for API creation.
